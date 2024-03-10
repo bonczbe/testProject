@@ -10,6 +10,7 @@ export default function New({ auth }) {
         contacts: [{ email: '', name: '' }]
     });
     const [users, setUsers] = useState([]);
+    const [updateStatus, setStatus] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -27,6 +28,9 @@ export default function New({ auth }) {
 
         fetchUsers();
     }, []);
+    useEffect(() => {
+        setStatus(null)
+    }, [formData]);
 
     const handleChange = (e, index) => {
         const { name, value } = e.target;
@@ -72,6 +76,7 @@ export default function New({ auth }) {
 
     const handleSubmit = async e => {
         e.preventDefault();
+        setStatus('Sending')
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(route('projects.store'), {
@@ -87,10 +92,12 @@ export default function New({ auth }) {
                 throw new Error('Network response was not ok');
             }
 
+            setStatus('Successfull')
             const data = await response.json();
             window.location.href = route('projects.show', { project: data.project.id });
         } catch (error) {
             console.error('There was an error!', error);
+            setStatus('Error')
         }
     };
 
@@ -102,6 +109,8 @@ export default function New({ auth }) {
             <Head title="New Project" />
 
             <div className="py-12">
+                {updateStatus=="Error"&&<p className={`w-full  text-center`}>There was an error!</p>}
+                {updateStatus=="Successfull"&&<p className={`w-full  text-center`}>Updated!</p>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
@@ -189,6 +198,7 @@ export default function New({ auth }) {
                     </div>
                     <div className="flex items-center justify-between">
                         <button
+                            disabled={updateStatus=="Sending"}
                             type="submit"
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                         >

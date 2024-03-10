@@ -13,6 +13,7 @@ export default function Edit({ auth, project }) {
         })),
     });
     const [users, setUsers] = useState([]);
+    const [updateStatus, setStatus] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -30,6 +31,10 @@ export default function Edit({ auth, project }) {
 
         fetchUsers();
     }, []);
+
+    useEffect(() => {
+        setStatus(null)
+    }, [formData]);
 
     const handleChange = (e, index) => {
         const { name, value } = e.target;
@@ -52,7 +57,11 @@ export default function Edit({ auth, project }) {
         const filledContactsCount = formData.contacts.filter(
             (contact) => contact.email && contact.name
         ).length;
-        if (filledContactsCount <= 2&&formData.contacts[index].email!=""&&formData.contacts[index].name!="") {
+        if (
+            filledContactsCount <= 2 &&
+            formData.contacts[index].email != "" &&
+            formData.contacts[index].name != ""
+        ) {
             return;
         }
 
@@ -66,6 +75,7 @@ export default function Edit({ auth, project }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setStatus('Sending')
         try {
             const csrfToken = document
                 .querySelector('meta[name="csrf-token"]')
@@ -83,9 +93,10 @@ export default function Edit({ auth, project }) {
                 throw new Error("Network response was not ok");
             }
 
-            const data = await response.json();
+            setStatus('Successfull')
         } catch (error) {
             console.error("There was an error!", error);
+            setStatus('Error')
         }
     };
     const handleContactEmailChange = (e, index) => {
@@ -129,7 +140,9 @@ export default function Edit({ auth, project }) {
         >
             <Head title="Edit Project" />
 
-            <div className="py-12">
+            <div className="">
+                {updateStatus=="Error"&&<p className={`w-full  text-center`}>There was an error!</p>}
+                {updateStatus=="Successfull"&&<p className={`w-full  text-center`}>Updated!</p>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label
@@ -237,6 +250,7 @@ export default function Edit({ auth, project }) {
                                 </button>
                             </div>
                         ))}
+                    </div>
                         <button
                             type="button"
                             onClick={handleAddContact}
@@ -244,22 +258,20 @@ export default function Edit({ auth, project }) {
                         >
                             Add Contact
                         </button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <button
-                            type="submit"
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                        >
-                            Update Project
-                        </button>
-                    </div>
+                    <button
+                        type="submit"
+                        disabled={updateStatus=="Sending"}
+                        className="text-blue-600 hover:text-blue-900 ml-2 focus:outline-none "
+                    >
+                        Update Project
+                    </button>
+                    <button
+                        onClick={() => handleDelete(project)}
+                        className="text-red-600 hover:text-red-900 ml-2 focus:outline-none "
+                    >
+                        Delete
+                    </button>
                 </form>
-                <button
-                    onClick={() => handleDelete(project)}
-                    className="text-red-600 hover:text-red-900 ml-2 focus:outline-none "
-                >
-                    Delete
-                </button>
             </div>
         </AuthenticatedLayout>
     );

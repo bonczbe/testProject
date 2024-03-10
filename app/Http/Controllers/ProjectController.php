@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Http\Controllers\Controller;
+use App\Mail\ProjectAdded;
 use App\Mail\ProjectDeleted;
 use App\Mail\ProjectUpdated;
 use App\Models\User;
@@ -61,12 +62,11 @@ class ProjectController extends Controller
             ]);
 
             $project->contacts()->attach($user->id);
-            if (!$user->hasVerifiedEmail()) {
-                $user->sendEmailVerificationNotification();
-            }
+                //$user->sendEmailVerificationNotification();
+                Mail::to($user->email)->send(new ProjectAdded($project));
         }
 
-        return "Project is added!";
+        return response()->json(['message' => 'Project is added!']);
     }
 
     /**
@@ -76,7 +76,6 @@ class ProjectController extends Controller
     {
         $project->load('contacts');
 
-        // Return Inertia view with the project and its contacts
         return Inertia::render('Projects/Show', [
             'project' => $project,
         ]);
@@ -126,6 +125,7 @@ class ProjectController extends Controller
         foreach ($validatedData['contacts'] as $userData) {
             $user = User::firstOrCreate(['email' => $userData['email']], [
                 'name' => $userData['name'],
+                'email' => $userData['email'],
                 'password' => Hash::make(Str::random(10)),
             ]);
 
@@ -141,7 +141,7 @@ class ProjectController extends Controller
             Mail::to($contactsEmails)->send(new ProjectUpdated($project, $changedData));
         }
 
-        return "Edit was successfully made!";
+        return response()->json(['message' => 'Project is added!']);
     }
 
 
