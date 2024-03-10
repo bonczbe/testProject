@@ -46,19 +46,18 @@ export default function New({ auth }) {
     };
 
     const handleRemoveContact = index => {
-        const hasFilledContact = formData.contacts.some(contact => contact.email && contact.name);
-
-        const isCompletelyFilled = formData.contacts[index].email && formData.contacts[index].name;
-
-        if (formData.contacts.length === 1 || !isCompletelyFilled || !hasFilledContact) {
+        const filledContactsCount = formData.contacts.filter(
+            (contact) => contact.email && contact.name
+        ).length;
+        if (filledContactsCount <= 2&&formData.contacts[index].email!=""&&formData.contacts[index].name!="") {
             return;
         }
 
         const list = [...formData.contacts];
         list.splice(index, 1);
-        setFormData(prevState => ({
+        setFormData((prevState) => ({
             ...prevState,
-            contacts: list
+            contacts: list,
         }));
     };
 
