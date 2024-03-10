@@ -66,8 +66,7 @@ class ProjectController extends Controller
             }
         }
 
-        return redirect()->route('projects.show', ['project' => $project->id])
-            ->with('success', 'Project created successfully.');
+        return "Project is added!";
     }
 
     /**
@@ -142,8 +141,7 @@ class ProjectController extends Controller
             Mail::to($contactsEmails)->send(new ProjectUpdated($project, $changedData));
         }
 
-        return redirect()->route('projects.show', ['project' => $project->id])
-            ->with('success', 'Project updated successfully.');
+        return "Edit was successfully made!";
     }
 
 
@@ -157,8 +155,6 @@ class ProjectController extends Controller
         Mail::to($contactsEmails)->send(new ProjectDeleted($project));
         $project->delete();
 
-
-        return redirect()->route('projects.index')
-            ->with('success', 'Project deleted successfully.');
+        return "Destroy was successfully made!";
     }
 }

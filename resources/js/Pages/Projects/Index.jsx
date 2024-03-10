@@ -17,7 +17,6 @@ export default function Index({ auth, projects }) {
                         .getAttribute("content"),
                 },
             });
-
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
